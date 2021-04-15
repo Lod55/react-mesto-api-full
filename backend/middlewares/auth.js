@@ -2,16 +2,13 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const CastError = require('../errors/cast-err');
 
-const extractBearerToken = (header) => header.replace('Bearer ', '');
-
 const auth = (req, res, next) => {
-  const { authorization } = req.headers;
+  const token = req.cookies.jwt;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
+  if (!token) {
     throw new CastError('Необходимо авторизоваться', 401);
   }
 
-  const token = extractBearerToken(authorization);
   let payload;
 
   try {
