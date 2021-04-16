@@ -14,14 +14,15 @@ import Main from './Main';
 import Footer from './Footer';
 
 // api
-import * as auth from '../utils/auth';
-import api from '../utils/api.js'
+import * as api from '../utils/api.js';
+// import * as auth from '../utils/auth';
+// import api from '../utils/api.js'
 
 const App = () => {
-  // Дефолтные значение данных пользователя для api/auth
-  const initialData = {
-    email: ''
-  }
+  // // Дефолтные значение данных пользователя для api
+  // const initialData = {
+  //   email: ''
+  // }
 
   // Стейт переменные компонента
   const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
@@ -29,7 +30,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
-  const [data, setData] = useState(initialData);
+  // const [data, setData] = useState(initialData);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const history = useHistory();
@@ -98,45 +99,53 @@ const App = () => {
       })
   }
 
-  useEffect(() => {
-    setIsLoading(true)
-    api.getInitialCards()
-      .then(res => {
-        setCards(res)
-      })
-      .catch(err => console.log(`Error: ${err}`))
-      .finally(() => setIsLoading(false))
-  }, []);
+  // useEffect(() => {
+  //   setIsLoading(true)
+  //   api.getInitialCards()
+  //     .then(res => {
+  //       responseCheck(res)
+  //       setCards(res)
+  //     })
+  //     .catch(err => console.log(`Error: ${err}`))
+  //     .finally(() => setIsLoading(false))
+  // }, []);
 
-  useEffect(() => {
-    api.getInfoUser()
-      .then(res => {
-        setCurrentUser(res);
-      })
-      .catch(err => console.log(`Error: ${err}`));
-  }, []);
+  // useEffect(() => {
+  //   api.getInfoUser()
+  //     .then(res => {
+  //       setCurrentUser(res);
+  //     })
+  //     .catch(err => console.log(`Error: ${err}`));
+  // }, []);
 
   // ---------- Функции запросов api/auth ----------
   // Проверка токена пользователя на подленность на сервере
   // проверка, что пользователь уже авторизован
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const tokenCheck = useCallback(() => {
-    const jwt = localStorage.getItem('jwt');
+    // const jwt = localStorage.getItem('jwt');
+    const cookieJwt = document.cookie.jwt;
 
-    if (jwt) {
+    if (cookieJwt) {
+      setIsLoading(true)
       setIsAuthChecking(true);
-      auth.getContent(jwt)
-        .then((res) => {
-          if (res) {
-            setLoggedIn(true);
-            setData({
-              email: res.data.email
-            })
-            history.push('/mesto');
-          }
+
+      api.getInfoUser()
+        .then(res => {
+          responseCheck(res);
+          setCurrentUser(res);
         })
         .catch(() => history.push('/sign-in'))
-        .finally(() => setIsAuthChecking(false))
+        .finally(() => setIsAuthChecking(false));
+
+      api.getInitialCards()
+        .then(res => {
+          responseCheck(res)
+          setCards(res)
+        })
+        .catch(err => console.log(`Error: ${err}`))
+        .finally(() => setIsLoading(false))
+
     } else {
       setIsAuthChecking(false)
     }
@@ -148,12 +157,13 @@ const App = () => {
 
   // Регистрации пользователя на сервере
   const handleRegister = ({ password, email }) => {
-    return auth.register({ password, email })
+    return api.register({ password, email })
       .then(res => {
-        if (!res || res.statusCode === 400) throw new Error(`Ошибка: ${res.message}`);
+        responseCheck(res);
+        if (!res || res.statusCode === 400) throw new Error(`Ошибка: ${res.message}`)
         setIsInfoTooltipPopupOpen(true);
         setIsSuccess(true);
-        history.push('/sign-in')
+        history.push('/sign-in');
         return res;
       })
       .catch(err => {
@@ -165,14 +175,15 @@ const App = () => {
 
   // Авторизации пользователя
   const handleLogin = ({ password, email }) => {
-    return auth.authorize({ password, email })
+    return api.authorize({ password, email })
       .then(res => {
-        if (!res || res.statusCode === 400 || res.statusCode === 401) throw new Error(`Ошибка: ${res.message}`);
-        if (res.token) {
+        responseCheck(res);
+        if (!res || res.statusCode === 400 || res.statusCode === 401) throw new Error(`Ошибка: ${res.message}`)
+        if (res.massege === "Авторизация прошла успешно!") {
           setIsInfoTooltipPopupOpen(true);
           setIsSuccess(true);
           setLoggedIn(true);
-          localStorage.setItem('jwt', res.token);
+          // localStorage.setItem('jwt', res.token);
         };
       })
       .then(tokenCheck)
@@ -185,10 +196,15 @@ const App = () => {
 
   // Выход из системы
   const handleSignOut = () => {
-    localStorage.removeItem('jwt');
-    setData(initialData);
-    setLoggedIn(false);
-    history.push('/sign-in');
+    // localStorage.removeItem('jwt');
+    api.signOut()
+      .then((res) => {
+        responseCheck(res);
+        // setData(initialData);
+        setLoggedIn(false);
+        history.push('/sign-in');
+      })
+      .catch((err) => console.log(`Error: ${err}`))
   }
 
   return (
@@ -197,7 +213,7 @@ const App = () => {
         <Header
           loggedIn={loggedIn}
           onSignOut={handleSignOut}
-          userEmail={data.email}
+          userEmail={currentUser.email}
         />
 
         <Switch>

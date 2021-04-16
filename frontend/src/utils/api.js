@@ -1,106 +1,119 @@
-class Api {
-  constructor({ baseUrl, token, groupId }) {
-    this._address = baseUrl;
-    this._token = token;
-    this._groupId = groupId;
-  }
+const BASE_URL = 'http://';
 
-  _checkResponse(res) {
-    if (res.ok) {
-      return res.json();
-    }
-    return Promise.reject(`Ошибка ${res.status}`);
-  }
+const responseCheck = (response) => response.ok
+  ? response.json()
+  : Promise.reject(`Ошибка ${response.status}`);
 
-  getInitialCards() {
-    return fetch(`${this._address}/${this._groupId}/cards`, {
-      headers: {
-        authorization: this._token
-      }
-    })
-      .then(this._checkResponse)
-  }
-
-  getInfoUser() {
-    return fetch(`${this._address}/${this._groupId}/users/me`, {
-      headers: {
-        authorization: this._token
-      }
-    })
-      .then(this._checkResponse)
-  }
-
-  setInfoUser({ name, about }) {
-    return fetch(`${this._address}/${this._groupId}/users/me`, {
-      method: 'PATCH',
-      headers: {
-        authorization: this._token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name,
-        about
-      })
-    })
-      .then(this._checkResponse)
-  }
-
-  setCard({ name, link }) {
-    return fetch(`${this._address}/${this._groupId}/cards`, {
-      method: 'POST',
-      headers: {
-        authorization: this._token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name,
-        link
-      })
-    })
-      .then(this._checkResponse)
-  }
-
-  removeCard(id) {
-    return fetch(`${this._address}/${this._groupId}/cards/${id}`, {
-      method: 'DELETE',
-      headers: {
-        authorization: this._token,
-      }
-    })
-      .then(this._checkResponse)
-  }
-
-  changeLikeCardStatus(id, isLiked) {
-    return fetch(`${this._address}/${this._groupId}/cards/likes/${id}`, {
-      method: isLiked ? 'DELETE' : 'PUT',
-      headers: {
-        authorization: this._token,
-      }
-    })
-      .then(this._checkResponse)
-  }
-
-  setUserAvatar(src) {
-    return fetch(`${this._address}/${this._groupId}/users/me/avatar`, {
-      method: 'PATCH',
-      headers: {
-        authorization: this._token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        avatar: src,
-      })
-    })
-      .then(this._checkResponse)
-  }
+// GET reqests
+export const getInfoUser = () => {
+  return fetch(`${BASE_URL}/users/me`, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then(responseCheck)
 }
 
-const config = {
-  baseUrl: 'https://mesto.nomoreparties.co/v1',
-  token: '429ceaf1-0a34-48aa-a4c9-c70c2c79ac6e',
-  groupId: 'cohort-19'
+export const getInitialCards = () => {
+  return fetch(`${BASE_URL}/cards`, {
+    method: 'GET',
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then(responseCheck)
 }
 
-const api = new Api(config);
+// POST reqests
+export const register = ({ password, email }) => {
+  return fetch(`${BASE_URL}/signup`, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "password": password,
+      "email": email,
+    }),
+  })
+    .then(responseCheck)
+};
 
-export default api;
+export const authorize = ({ password, email }) => {
+  return fetch(`${BASE_URL}/signin`, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      "password": password,
+      "email": email,
+    }),
+  })
+    .then(responseCheck)
+};
+
+export const setCard = ({ name, link }) => {
+  return fetch(`${BASE_URL}/cards`, {
+    method: 'POST',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      "name": name,
+      "link": link,
+    }),
+  })
+    .then(responseCheck)
+}
+
+// PATCH reqests
+export const setInfoUser = ({ name, about }) => {
+  return fetch(`${BASE_URL}/users/me`, {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      "name": name,
+      "about": about,
+    }),
+  })
+    .then(responseCheck)
+};
+
+export const setUserAvatar = (src) => {
+  return fetch(`${BASE_URL}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      "avatar": src,
+    }),
+  })
+    .then(responseCheck)
+};
+
+// PUT, DELETE reqests
+export const changeLikeCardStatus = (id, isLiked) => {
+  return fetch(`${BASE_URL}/cards/${id}/likes`, {
+    method: isLiked ? 'DELETE' : 'PUT',
+  })
+    .then(responseCheck)
+}
+
+export const removeCard = (id) => {
+  return fetch(`${BASE_URL}/cards/${id}`, {
+    method: 'DELETE',
+  })
+    .then(this._checkResponse)
+}
+
+export const signOut = () => {
+  return fetch(`${BASE_URL}/signout`, {
+    method: 'DELETE',
+  })
+    .then(this._checkResponse)
+}

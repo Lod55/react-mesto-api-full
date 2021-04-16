@@ -157,6 +157,14 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+// Протестировать!
+const signOut = (req, res, next) => {
+  if (!res.cookie.jwt) {
+    throw new CastError('Данные в cookie не найдены', 400);
+  }
+  res.clearCookie("jwt").send({ massege: 'cookie удалена!' });
+}
+
 module.exports = {
   getUsers,
   getUserById,
@@ -165,4 +173,5 @@ module.exports = {
   updateAvatar,
   login,
   getUser,
+  signOut,
 };

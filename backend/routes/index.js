@@ -7,6 +7,7 @@ const CastError = require('../errors/cast-err');
 const {
   createUser,
   login,
+  signOut,
 } = require('../controllers/users');
 
 router.get('/crash-test', () => {
@@ -28,6 +29,8 @@ router.post('/signup', celebrate({
     password: Joi.string().required().min(5).max(50),
   }),
 }), createUser);
+
+router.delete('/signout', auth, signOut);
 
 router.use('/users', auth, usersRouter);
 router.use('/cards', auth, cardsRouter);
