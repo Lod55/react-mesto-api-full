@@ -144,26 +144,26 @@ const login = (req, res, next) => {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' },
+        { expiresIn: '24h' },
       );
 
       res.cookie(
         'jwt',
         token,
-        { maxAge: 3600000 * 24 * 7, httpOnly: true, sameSite: true },
+        { maxAge: 3600000 * 24, httpOnly: true, sameSite: true },
       )
         .send({ massege: 'Авторизация прошла успешно!' });
     })
     .catch(next);
 };
 
-// Протестировать!
-const signOut = (req, res, next) => {
-  if (!res.cookie.jwt) {
-    throw new CastError('Данные в cookie не найдены', 400);
-  }
-  res.clearCookie("jwt").send({ massege: 'cookie удалена!' });
-}
+const signOut = (req, res) => {
+  res.clearCookie('jwt').send({ massege: 'cookie удалена!' });
+};
+
+const successfulAuth = (req, res) => {
+  res.send({ massege: 'Пользователь авторизован!' });
+};
 
 module.exports = {
   getUsers,
@@ -174,4 +174,5 @@ module.exports = {
   login,
   getUser,
   signOut,
+  successfulAuth,
 };

@@ -15,23 +15,18 @@ import Footer from './Footer';
 
 // api
 import * as api from '../utils/api.js';
-// import * as auth from '../utils/auth';
-// import api from '../utils/api.js'
 
 const App = () => {
-  // // Дефолтные значение данных пользователя для api
-  // const initialData = {
-  //   email: ''
-  // }
-
   // Стейт переменные компонента
-  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
+  // Данные
   const [cards, setCards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
+  // Состояния
+  const [isInfoTooltipPopupOpen, setIsInfoTooltipPopupOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
-  // const [data, setData] = useState(initialData);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
 
   const history = useHistory();
 
@@ -40,34 +35,40 @@ const App = () => {
     setIsInfoTooltipPopupOpen(false)
   }
 
-
-  // ---------- Функции основного Api ----------
+  // ---------- Функции Api ----------
   // Проверка наличия ответа сервера
   const responseCheck = (res) => {
     if (!res) throw new Error(`Error: ${res.message}`);
   }
 
-  // Отправка информации на сервер
+  // Обновление информации юзера
   const handleUpdateUser = (data) => {
     return api.setInfoUser(data)
       .then(res => {
         responseCheck(res);
-        setCurrentUser(res);
+        setCurrentUser({
+          ...currentUser,
+          name: res.name,
+          about: res.about
+        });
         return res;
       })
   }
 
-  // Изменение аватара на сервере и отрисовка
+  // Обновление аватара
   const handleUpdateAvatar = (src) => {
     return api.setUserAvatar(src)
       .then(res => {
         responseCheck(res);
-        setCurrentUser(res);
+        setCurrentUser({
+          ...currentUser,
+          avatar: res.avatar
+        });
         return res;
       })
   }
 
-  // Добавление новой карточки на сервер и отрисовка
+  // Добавление новой карточки
   const handleAddPlaceSubmit = ({ name, link }) => {
     return api.setCard({ name, link })
       .then(res => {
@@ -77,7 +78,7 @@ const App = () => {
       })
   }
 
-  // Контоль состояния лайка и работа с состоянием на сервере
+  //  Обновление состояния лайка
   const handleCardLike = (card) => {
     const isLiked = card.likes.some(item => item._id === currentUser._id);
 
@@ -89,7 +90,7 @@ const App = () => {
       })
   }
 
-  // Удаления карточки с сервера
+  // Удаления карточки
   const handleCardDelete = (useCardId) => {
     return api.removeCard(useCardId)
       .then(res => {
@@ -99,63 +100,7 @@ const App = () => {
       })
   }
 
-  // useEffect(() => {
-  //   setIsLoading(true)
-  //   api.getInitialCards()
-  //     .then(res => {
-  //       responseCheck(res)
-  //       setCards(res)
-  //     })
-  //     .catch(err => console.log(`Error: ${err}`))
-  //     .finally(() => setIsLoading(false))
-  // }, []);
-
-  // useEffect(() => {
-  //   api.getInfoUser()
-  //     .then(res => {
-  //       setCurrentUser(res);
-  //     })
-  //     .catch(err => console.log(`Error: ${err}`));
-  // }, []);
-
-  // ---------- Функции запросов api/auth ----------
-  // Проверка токена пользователя на подленность на сервере
-  // проверка, что пользователь уже авторизован
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const tokenCheck = useCallback(() => {
-    // const jwt = localStorage.getItem('jwt');
-    const cookieJwt = document.cookie.jwt;
-
-    if (cookieJwt) {
-      setIsLoading(true)
-      setIsAuthChecking(true);
-
-      api.getInfoUser()
-        .then(res => {
-          responseCheck(res);
-          setCurrentUser(res);
-        })
-        .catch(() => history.push('/sign-in'))
-        .finally(() => setIsAuthChecking(false));
-
-      api.getInitialCards()
-        .then(res => {
-          responseCheck(res)
-          setCards(res)
-        })
-        .catch(err => console.log(`Error: ${err}`))
-        .finally(() => setIsLoading(false))
-
-    } else {
-      setIsAuthChecking(false)
-    }
-  }, [history])
-
-  useEffect(() => {
-    tokenCheck();
-  }, [tokenCheck])
-
-  // Регистрации пользователя на сервере
+  // Регистрация пользователя
   const handleRegister = ({ password, email }) => {
     return api.register({ password, email })
       .then(res => {
@@ -173,7 +118,28 @@ const App = () => {
       })
   }
 
-  // Авторизации пользователя
+  // Успешное прохождение авторизации
+  const successfulAuth = useCallback(() => {
+    setIsLoading(true)
+    api.getInfoUser()
+      .then(data => {
+        responseCheck(data);
+        setCurrentUser(data);
+      })
+      .catch(err => console.log(`Error: ${err}`))
+
+    api.getInitialCards()
+      .then(data => {
+        responseCheck(data)
+        setCards(data)
+      })
+      .catch(err => console.log(`Error: ${err}`))
+
+    setLoggedIn(true);
+    history.push('/mesto');
+  }, [history]);
+
+  // Авторизация пользователя
   const handleLogin = ({ password, email }) => {
     return api.authorize({ password, email })
       .then(res => {
@@ -182,11 +148,11 @@ const App = () => {
         if (res.massege === "Авторизация прошла успешно!") {
           setIsInfoTooltipPopupOpen(true);
           setIsSuccess(true);
-          setLoggedIn(true);
-          // localStorage.setItem('jwt', res.token);
+
+          successfulAuth();
+          setIsLoading(false)
         };
       })
-      .then(tokenCheck)
       .catch(err => {
         setIsInfoTooltipPopupOpen(true);
         setIsSuccess(false);
@@ -196,16 +162,34 @@ const App = () => {
 
   // Выход из системы
   const handleSignOut = () => {
-    // localStorage.removeItem('jwt');
     api.signOut()
       .then((res) => {
         responseCheck(res);
-        // setData(initialData);
         setLoggedIn(false);
-        history.push('/sign-in');
       })
       .catch((err) => console.log(`Error: ${err}`))
   }
+
+  // Проверка авторизации пользователя
+  useEffect(() => {
+    setIsAuthChecking(true)
+
+    api.checkAuth()
+      .then(res => {
+        if (res) {
+          successfulAuth();
+        }
+      })
+      .catch(() => {
+        setIsAuthChecking(false)
+        history.push('/sign-in')
+      })
+      .finally(() => {
+        setIsLoading(false)
+        setIsAuthChecking(false)
+      });
+
+  }, [history, successfulAuth]);
 
   return (
     <div className="page__container">
@@ -262,4 +246,3 @@ const App = () => {
 }
 
 export default App;
-

@@ -1,4 +1,5 @@
 const Card = require('../models/card');
+const User = require('../models/user.js');
 const CastError = require('../errors/cast-err');
 
 const getCars = (req, res, next) => {
@@ -16,13 +17,27 @@ const createCard = (req, res, next) => {
     throw new CastError('Переданы некорректные данные.', 400);
   }
 
-  Card.create({ ...data, owner: req.user._id })
-    .then((card) => res.status(201).send({
-      _id: card._id,
-      name: card.name,
-      link: card.link,
-      owner: card.owner,
-    }))
+  let owner;
+
+  User.findById(req.user._id, { __v: 0 })
+    .then((user) => {
+      if (!user) {
+        throw new CastError('Пользователь по указанному _id не найден.', 404);
+      }
+      owner = user;
+
+      return Card.create({ ...data, owner })
+        .then((card) => {
+          res.status(201).send({
+            _id: card._id,
+            name: card.name,
+            link: card.link,
+            owner: card.owner,
+            likes: card.likes,
+          });
+        })
+        .catch(next);
+    })
     .catch(next);
 };
 

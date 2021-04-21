@@ -2,7 +2,6 @@
   "name": "mesto-react",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://lod55.github.io/mesto-react/",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
@@ -17,7 +16,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "deploy": "scp -r ./build/* mesto-lod55@178.154.207.85:/home/mesto-lod55/express-mesto/public"
   },
   "eslintConfig": {
     "extends": [

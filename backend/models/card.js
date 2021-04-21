@@ -11,7 +11,7 @@ const cardSchema = new Schema({
     type: String,
     required: [true, 'Поле link обязательно для заполнения'],
     validate: {
-      validator: (v) => /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/.test(v),
+      validator: (v) => /^(https?:\/\/)(www\.)?([\da-z-.]+)\.([a-z.]{2,6})[\da-zA-Z-._~:?#[\]@!$&'()*+,;=/]*\/?#?$/.test(v),
       message: 'Неправильный формат Url',
     },
   },
