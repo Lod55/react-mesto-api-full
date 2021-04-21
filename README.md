@@ -5,8 +5,8 @@
 А также оценивают фотографии других пользователей.
 
 ## Демо
-- app-mesto.lod55.nomoredomains.club (приложение)
-- api.app-mesto.lod55.nomoredomains.club (api для приложение)
+- https://app-mesto.lod55.nomoredomains.club (приложение)
+- https://api.app-mesto.lod55.nomoredomains.club (api для приложение)
 
 ## В работе использовались:
 - [X] Использован сервер на Yandex Cloud
