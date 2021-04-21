@@ -1,4 +1,4 @@
-<h1 align="center"> react-mesto-api-full / Project Mesto frontend+backend <h1>
+<h1 align="center"> Project Mesto frontend+backend <h1>
 
 ## О приложении
 Это интерактивная страница, где люди делятся фотографиями их любимых мест.
