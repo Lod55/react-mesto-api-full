@@ -73,7 +73,7 @@ const App = () => {
     return api.setCard({ name, link })
       .then(res => {
         responseCheck(res);
-        setCards([res, ...cards]);
+        setCards([...cards, res]);
         return res;
       })
   }
