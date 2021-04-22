@@ -138,7 +138,7 @@ const Main = (props) => {
                 onCardTrash={handleTrashClick}
               />
             )
-            )}
+            ).reverse()}
           </section>)
         }
       </main>
