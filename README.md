@@ -7,6 +7,7 @@
 ## Демо
 - https://app-mesto.lod55.nomoredomains.club (приложение)
 - https://api.app-mesto.lod55.nomoredomains.club (api для приложение)
+- 178.154.207.85 (публичный IP адрес)
 
 ## В работе использовались:
 - [X] Использован сервер на Yandex Cloud
