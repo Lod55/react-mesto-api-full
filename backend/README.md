@@ -1,4 +1,4 @@
-# Проект Mesto Express Backend
+# Mesto Express Backend
 
 ## Установка
 
