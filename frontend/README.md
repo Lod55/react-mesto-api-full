@@ -40,7 +40,7 @@
 Скопируйте проект на компьютер:
 
 ```
-git clone https://github.com/Lod55/mesto-react.git
+git clone https://github.com/Lod55/react-mesto-api-full.git
 ```
 
 Установите зависимости:
