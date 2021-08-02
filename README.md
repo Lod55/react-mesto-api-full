@@ -1,4 +1,4 @@
-## Project Mesto frontend+backend
+## Проект Mesto MERN stack (MongoDB,  Express,  React, Node)
 
 ### О проекте
 Это интерактивная страница, где люди делятся фотографиями их любимых мест.
